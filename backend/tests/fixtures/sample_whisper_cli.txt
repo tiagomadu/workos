@@ -1,0 +1,9 @@
+[00:00:05.000 --> 00:00:12.000] Let's discuss the Q4 roadmap.
+[00:00:12.000 --> 00:00:25.000] I think we should prioritize the API migration.
+[00:00:25.000 --> 00:00:33.000] Agreed. Can you draft a timeline by Friday?
+[00:00:33.000 --> 00:00:45.000] Sure. I'll also loop in Carol for the frontend work.
+[00:00:45.000 --> 00:00:58.000] Great. Let's also review the budget numbers.
+[00:00:58.000 --> 00:01:10.000] The current estimate is 15% over. We need to cut scope.
+[00:01:10.000 --> 00:01:22.000] OK, let's remove the analytics dashboard from Q4.
+[00:01:22.000 --> 00:01:30.000] That works. I'll update the project plan.
+[00:01:30.000 --> 00:01:35.000] Thanks. Meeting adjourned.

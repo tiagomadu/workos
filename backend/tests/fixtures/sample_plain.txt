@@ -1,0 +1,9 @@
+Alice: Let's discuss the Q4 roadmap.
+Bob: I think we should prioritize the API migration.
+Alice: Agreed. Bob, can you draft a timeline by Friday?
+Bob: Sure. I'll also loop in Carol for the frontend work.
+Alice: Great. Let's also review the budget numbers.
+Bob: The current estimate is 15% over. We need to cut scope.
+Alice: OK, let's remove the analytics dashboard from Q4.
+Bob: That works. I'll update the project plan.
+Alice: Thanks. Meeting adjourned.
