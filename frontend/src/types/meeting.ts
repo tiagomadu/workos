@@ -29,6 +29,14 @@ export interface MeetingSummary {
   follow_ups: string[];
 }
 
+export interface ActionItem {
+  id?: string;
+  description: string;
+  owner_name: string | null;
+  due_date: string | null; // YYYY-MM-DD
+  status: "not_started" | "in_progress" | "complete" | "cancelled";
+}
+
 export type ProcessingStep =
   | "detecting_type"
   | "summarizing"

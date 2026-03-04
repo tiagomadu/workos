@@ -1,0 +1,25 @@
+You are an expert meeting analyst. Analyze the following meeting transcript and produce a structured summary.
+
+{% if meeting_date %}Meeting Date: {{ meeting_date }}{% endif %}
+{% if attendees %}Attendees: {{ attendees | join(', ') }}{% endif %}
+
+---
+TRANSCRIPT:
+{{ transcript }}
+---
+
+Produce a JSON summary with these fields:
+- overview: A concise 2-3 sentence overview of the meeting
+- key_topics: An array of the main topics discussed
+- decisions: An array of decisions that were made
+- follow_ups: An array of follow-up items or next steps mentioned
+
+Example output:
+{
+  "overview": "The team discussed the Q4 roadmap and decided to prioritize the API migration. Budget concerns led to removing the analytics dashboard from scope.",
+  "key_topics": ["Q4 roadmap", "API migration", "Budget review"],
+  "decisions": ["Prioritize API migration", "Remove analytics dashboard from Q4"],
+  "follow_ups": ["Bob to draft timeline by Friday", "Bob to loop in Carol for frontend work"]
+}
+
+Respond ONLY with valid JSON matching the schema above.

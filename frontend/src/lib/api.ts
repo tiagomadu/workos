@@ -1,4 +1,9 @@
-import type { Meeting, MeetingUploadResponse } from "@/types/meeting";
+import type {
+  ActionItem,
+  Meeting,
+  MeetingSummary,
+  MeetingUploadResponse,
+} from "@/types/meeting";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -66,6 +71,95 @@ export async function getMeeting(
       .json()
       .catch(() => ({ detail: "Failed to fetch meeting" }));
     throw new Error(error.detail || "Failed to fetch meeting");
+  }
+  return res.json();
+}
+
+export async function getActionItems(
+  meetingId: string,
+  token: string
+): Promise<ActionItem[]> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/action-items`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const error = await res
+      .json()
+      .catch(() => ({ detail: "Failed to fetch action items" }));
+    throw new Error(error.detail || "Failed to fetch action items");
+  }
+  return res.json();
+}
+
+export async function saveActionItems(
+  meetingId: string,
+  items: ActionItem[],
+  token: string
+): Promise<ActionItem[]> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/action-items`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(items),
+    }
+  );
+  if (!res.ok) {
+    const error = await res
+      .json()
+      .catch(() => ({ detail: "Failed to save action items" }));
+    throw new Error(error.detail || "Failed to save action items");
+  }
+  return res.json();
+}
+
+export async function updateSummary(
+  meetingId: string,
+  summary: MeetingSummary,
+  token: string
+): Promise<Meeting> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/summary`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(summary),
+    }
+  );
+  if (!res.ok) {
+    const error = await res
+      .json()
+      .catch(() => ({ detail: "Failed to update summary" }));
+    throw new Error(error.detail || "Failed to update summary");
+  }
+  return res.json();
+}
+
+export async function reprocessMeeting(
+  meetingId: string,
+  token: string
+): Promise<MeetingUploadResponse> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/reprocess`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const error = await res
+      .json()
+      .catch(() => ({ detail: "Failed to reprocess" }));
+    throw new Error(error.detail || "Failed to reprocess");
   }
   return res.json();
 }

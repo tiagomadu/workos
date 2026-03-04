@@ -1,0 +1,26 @@
+You are an expert at classifying business meeting types. Analyze the following meeting transcript and determine the meeting type.
+
+---
+TRANSCRIPT (first 2000 characters):
+{{ transcript[:2000] }}
+---
+
+Meeting types:
+- 1on1: Two participants discussing personal/career topics, feedback, or mentorship
+- team_huddle: Team status updates, blockers, and coordination
+- project_review: Deep-dive into a specific project's progress, design, or technical details
+- business_partner: Meeting with external stakeholders, clients, or vendors
+- other: Does not fit any of the above categories
+
+Confidence levels:
+- high: Clear signals matching the type (e.g., obvious status updates = team_huddle)
+- medium: Some ambiguity but leaning toward a type
+- low: Very unclear, could be multiple types
+
+Example output:
+{
+  "meeting_type": "team_huddle",
+  "confidence": "high"
+}
+
+Respond ONLY with valid JSON matching the schema above.

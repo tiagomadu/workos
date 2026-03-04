@@ -18,10 +18,15 @@ def _read_fixture_bytes(name: str) -> bytes:
 class TestUploadEndpoint:
     """Tests for POST /api/v1/meetings/upload."""
 
+    @patch("app.api.v1.meetings.process_meeting", new_callable=AsyncMock)
     @patch("app.services.storage.create_meeting_record", new_callable=AsyncMock)
     @patch("app.services.storage.upload_transcript", new_callable=AsyncMock)
     async def test_valid_txt_upload_returns_202(
-        self, mock_upload: AsyncMock, mock_create: AsyncMock, client: AsyncClient
+        self,
+        mock_upload: AsyncMock,
+        mock_create: AsyncMock,
+        mock_process: AsyncMock,
+        client: AsyncClient,
     ) -> None:
         mock_upload.return_value = "test-user-id/2026/03/2026-03-04_sample.txt"
         mock_create.return_value = "meeting-uuid-123"
@@ -66,10 +71,15 @@ class TestUploadEndpoint:
 class TestPasteEndpoint:
     """Tests for POST /api/v1/meetings/paste."""
 
+    @patch("app.api.v1.meetings.process_meeting", new_callable=AsyncMock)
     @patch("app.services.storage.create_meeting_record", new_callable=AsyncMock)
     @patch("app.services.storage.upload_transcript", new_callable=AsyncMock)
     async def test_paste_returns_202(
-        self, mock_upload: AsyncMock, mock_create: AsyncMock, client: AsyncClient
+        self,
+        mock_upload: AsyncMock,
+        mock_create: AsyncMock,
+        mock_process: AsyncMock,
+        client: AsyncClient,
     ) -> None:
         mock_upload.return_value = "test-user-id/2026/03/2026-03-04_pasted.txt"
         mock_create.return_value = "meeting-uuid-456"

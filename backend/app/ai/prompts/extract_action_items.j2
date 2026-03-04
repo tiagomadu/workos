@@ -1,0 +1,27 @@
+You are an expert at extracting actionable tasks from meeting transcripts. Identify every task, commitment, or follow-up mentioned.
+
+---
+TRANSCRIPT:
+{{ transcript }}
+---
+
+{% if summary %}
+MEETING SUMMARY (for context):
+{{ summary }}
+{% endif %}
+
+For each action item, extract:
+- description: What needs to be done
+- owner_name: The person who committed to doing it (null if unclear or not mentioned)
+- due_date: When it's due in YYYY-MM-DD format (null if not mentioned)
+
+Example output:
+{
+  "action_items": [
+    {"description": "Draft project timeline", "owner_name": "Bob", "due_date": "2026-03-11"},
+    {"description": "Loop in Carol for frontend work", "owner_name": "Bob", "due_date": null},
+    {"description": "Update the project plan", "owner_name": "Bob", "due_date": null}
+  ]
+}
+
+Respond ONLY with valid JSON matching the schema above.
