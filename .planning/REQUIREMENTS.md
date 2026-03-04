@@ -288,8 +288,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 1 | Pending |
 | INFRA-05 | Phase 1 | Pending |
-| INFRA-06 | Phase 1 | Pending |
-| INFRA-07 | Phase 1 | Pending |
+| INFRA-06 | Phase 5 | Pending |
+| INFRA-07 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 79 total
@@ -298,4 +298,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-04*
-*Last updated: 2026-03-04 after initial definition from PRD v1.0 + People/Teams + Calendar + Gmail + Auth*
+*Last updated: 2026-03-04 — traceability updated to match ROADMAP.md (INFRA-06 and INFRA-07 moved to Phase 5 where performance verification occurs)*
