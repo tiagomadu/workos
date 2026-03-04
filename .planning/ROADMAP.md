@@ -26,11 +26,11 @@
 4. The meeting type is auto-detected with a confidence indicator shown in the UI.
 5. The entire stack starts with `docker-compose up`, and a GitHub Actions CI pipeline passes on every push.
 
-### Plans
+### Plans (3 plans, 3 waves)
 
-- **1-1: Infrastructure + Auth** — Docker Compose stack, Supabase schema (all 9 tables + pgvector extension), FastAPI skeleton with JWT middleware, Next.js scaffold with Google OAuth login/logout flow, GitHub Actions CI, environment configuration.
-- **1-2: Transcript Ingestion** — File upload and paste endpoints, MacWhisper/Whisper CLI format normalisation, Supabase Storage integration (path-only storage, signed URLs on read), processing indicator on the frontend.
-- **1-3: AI Processing** — LLM Protocol abstraction (Ollama + Claude), Jinja2 prompt templates, `instructor`-enforced structured output, summary generation, action item extraction with review screen, meeting type auto-detection, graceful error handling with transcript preservation.
+- [ ] **01-01-PLAN.md** — Infrastructure + Auth: Docker Compose, Supabase schema (9 tables + pgvector), FastAPI JWT middleware, Next.js scaffold with Google OAuth, GitHub Actions CI *(Wave 1)*
+- [ ] **01-02-PLAN.md** — Transcript Ingestion: File upload + paste endpoints, MacWhisper/Whisper CLI normalisation, Supabase Storage, upload UI with preview + processing indicator *(Wave 2)*
+- [ ] **01-03-PLAN.md** — AI Processing: LLM Protocol (Ollama + Claude), Jinja2 templates, instructor structured output, summary view + action items table, meeting type detection *(Wave 3)*
 
 ---
 
