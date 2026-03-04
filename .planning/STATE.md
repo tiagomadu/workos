@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 ## Current Phase
 
 **Phase:** 1 — Foundation + Auth + Core AI Pipeline
-**Status:** Planned (3 plans, 3 waves)
+**Status:** Executing (Plan 01-01 ✓, Plans 01-02 and 01-03 pending)
 **Blockers:** None
 
 ## Decisions Log
@@ -28,3 +28,14 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - User consistently chose recommended options: clean, modern, non-blocking UX patterns
 - Key patterns: preview-before-commit, smart defaults over required fields, bulk operations
 - **Resume:** Run `/gsd:plan-phase 1` to create execution plans
+
+### 2026-03-04 — Plan 01-01 Executed
+- Scaffolded full monorepo: Next.js 15 + FastAPI + Docker Compose
+- Google OAuth with Supabase Auth (offline access + consent for refresh tokens)
+- Backend JWT validation with PyJWT (HS256, audience="authenticated")
+- 9-table PostgreSQL migration with pgvector, RLS, triggers
+- GitHub Actions CI (2 jobs: backend + frontend)
+- 7 tests passing (6 backend, 1 frontend)
+- Key decisions: Tailwind v3.4 (not v4), Ollama native (not Docker), PyJWT (not python-jose)
+- Committed as `174d47a` (66 files, 11,714 insertions)
+- **Resume:** Execute Plan 01-02 (Transcript Ingestion)

@@ -1,5 +1,14 @@
 """Shared test fixtures."""
 
+import os
+
+# Set required environment variables BEFORE any app imports.
+# Settings() is instantiated at module level in config.py, so these
+# must be in os.environ before the first import of app code.
+os.environ.setdefault("SUPABASE_URL", "https://test.supabase.co")
+os.environ.setdefault("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key")
+os.environ.setdefault("SUPABASE_JWT_SECRET", "test-jwt-secret-minimum-32-chars!")
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 

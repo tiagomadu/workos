@@ -9,7 +9,7 @@ from app.main import app
 from app.core.config import settings
 
 
-TEST_SECRET = "test-jwt-secret-for-unit-tests"
+TEST_SECRET = "test-jwt-secret-minimum-32-chars!"
 
 
 def make_token(
