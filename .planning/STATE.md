@@ -5,12 +5,12 @@
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Upload a transcript → structured summary + action items in under 2 minutes
-**Current focus:** Phase 5 — Synthesis Layer (next)
+**Current focus:** Project complete — all 5 phases delivered
 
 ## Current Phase
 
-**Phase:** 4 — Integration Layer
-**Status:** ✓ Complete (2/2 plans, 173 tests, 200+ files)
+**Phase:** 5 — Synthesis Layer
+**Status:** ✓ Complete (2/2 plans, 196 tests, 129 source files)
 **Blockers:** None
 
 ## Decisions Log
@@ -156,3 +156,31 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - 200+ files across 2 plans (26 new/modified files in Phase 4)
 - Integration layer complete: Google OAuth → Calendar sync → Auto-match → Gmail browse → Email import → AI pipeline → RAG indexed
 - **Resume:** Run `/gsd:discuss-phase 5` for Phase 5 (Synthesis Layer)
+
+### 2026-03-04 — Phase 5 Context Gathered
+- Discussed 4 gray areas: Dashboard Layout, Action Items Grouping, Landing Page, Performance Verification
+- All decisions captured in `.planning/phases/05-synthesis-dashboard/05-CONTEXT.md`
+- User consistently chose recommended options (same pattern as all phases)
+- Key patterns: 2×2 card grid, overdue/today/this_week/later grouping, replace home page, documented performance
+
+### 2026-03-04 — Phase 5 Plans Created + Executed
+- Plan 05-01: Dashboard backend + frontend (DASH-01–06) — 2 parallel tasks
+- Plan 05-02: Performance verification + documentation (INFRA-06–07) — 1 task
+- Dashboard aggregation endpoint: GET /api/v1/dashboard (meetings 7d, action items grouped, projects, events)
+- Dashboard replaces / home page with 2×2 grid layout
+- Action items colour-coded: Overdue (red), Today (amber), This Week, Later (collapsed)
+- Projects with status pills (on_track green, at_risk amber, blocked red)
+- Calendar events for upcoming week
+- Quick nav links to all app sections
+- 14 new backend tests, total 187 passing
+- All 9 frontend tests passing, TypeScript clean
+- Performance results documented in 05-02-PERF-RESULTS.md
+- Committed as `d9417ba` (Plan 05-01, 8 files, 878 insertions)
+
+### 2026-03-04 — Phase 5 Complete ✓ — PROJECT COMPLETE
+- All 8 requirements implemented: DASH-01–06, INFRA-06–07
+- 187 backend tests + 9 frontend tests passing (196 total)
+- 129 source files (70 Python + 59 TS/TSX)
+- 46 REST API endpoints across 10 routers
+- All 79 v1 requirements across 5 phases verified complete
+- Project is portfolio-ready
