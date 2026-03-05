@@ -5,12 +5,12 @@
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Upload a transcript → structured summary + action items in under 2 minutes
-**Current focus:** Phase 4 — Integration Layer (next)
+**Current focus:** Phase 5 — Synthesis Layer (next)
 
 ## Current Phase
 
-**Phase:** 3 — Intelligence Layer
-**Status:** ✓ Complete (1/1 plan, 139 tests, 174 files)
+**Phase:** 4 — Integration Layer
+**Status:** ✓ Complete (2/2 plans, 173 tests, 200+ files)
 **Blockers:** None
 
 ## Decisions Log
@@ -124,3 +124,35 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - 174+ files across 1 plan (17 new/modified files in Phase 3)
 - RAG pipeline complete: upload → process → embed → search → AI answer with sources
 - **Resume:** Run `/gsd:discuss-phase 4` for Phase 4 (Integration Layer)
+
+### 2026-03-04 — Phase 4 Context Gathered
+- Discussed 4 gray areas: Calendar Sync UX, Transcript-Calendar Auto-Match, Gmail Thread Browsing, Email Thread Storage
+- All decisions captured in `.planning/phases/04-integration-layer/04-CONTEXT.md`
+- User consistently chose recommended options (same pattern as all phases)
+- Key patterns: settings page as integration hub, dismissible match banners, email-as-meeting type
+- Google Calendar + Gmail use same OAuth token (both read-only scopes)
+- Email threads stored as meetings with meeting_type="email_thread"
+- **Resume:** Run `/gsd:plan-phase 4` to create execution plans
+
+### 2026-03-04 — Phase 4 Plans Created + Executed
+- Plan 04-01: Google OAuth + Calendar Sync + Auto-Match (CALENDAR-01–07) — 2 parallel tasks
+- Plan 04-02: Gmail Integration + Email Import (EMAIL-01–05) — 2 parallel tasks
+- New migration: user_google_tokens table for Google API token storage
+- Google OAuth with calendar.readonly + gmail.readonly scopes in single consent flow
+- Token auto-refresh with 5-minute buffer before expiry
+- Calendar sync via Google Calendar API v3 (past 30 days + next 14 days)
+- Auto-match: date (+0.5) + attendee overlap (+0.1) scoring, threshold 0.5
+- Match suggestion banner on meeting detail (confirm/dismiss/choose-other)
+- Settings page at /settings with connect/disconnect/sync controls
+- Calendar events page at /calendar with table display
+- Gmail thread browser at /emails with thread preview and import
+- Email import creates meeting with meeting_type="email_thread", triggers full AI pipeline
+- 34 new backend tests (22 calendar + 12 email), total 173 passing
+- Committed as `187f7d0` (Plan 04-01, 17 files) and `e9ac6a2` (Plan 04-02, 9 files)
+
+### 2026-03-04 — Phase 4 Complete ✓
+- All 12 requirements implemented: CALENDAR-01–07, EMAIL-01–05
+- 173 backend tests + 9 frontend tests passing
+- 200+ files across 2 plans (26 new/modified files in Phase 4)
+- Integration layer complete: Google OAuth → Calendar sync → Auto-match → Gmail browse → Email import → AI pipeline → RAG indexed
+- **Resume:** Run `/gsd:discuss-phase 5` for Phase 5 (Synthesis Layer)
