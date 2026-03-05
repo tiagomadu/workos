@@ -28,6 +28,7 @@ import type {
   CalendarMatchSuggestion,
 } from "@/types/calendar";
 import type { GmailThread, GmailThreadDetail } from "@/types/email";
+import type { DashboardData } from "@/types/dashboard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -791,6 +792,21 @@ export async function importEmailThread(
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to import email thread");
+  }
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard
+// ---------------------------------------------------------------------------
+
+export async function getDashboard(token: string): Promise<DashboardData> {
+  const res = await fetch(`${API_URL}/api/v1/dashboard`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch dashboard");
   }
   return res.json();
 }
