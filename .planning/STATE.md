@@ -63,3 +63,13 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - 110+ files across 3 plans
 - End-to-end flow proven: upload transcript → AI processing → structured summary + action items
 - **Resume:** Run `/gsd:discuss-phase 2` for Phase 2 (Entity Layer)
+
+### 2026-03-04 — Phase 2 Context Gathered
+- Discussed 4 gray areas: People Directory UX, Owner Resolution Logic, Task Tracker Layout, Project-Meeting Linking
+- All decisions captured in `.planning/phases/02-entity-layer/02-CONTEXT.md`
+- User consistently chose recommended options (same pattern as Phase 1)
+- Key patterns: searchable table, modal creation, inline editing, fuzzy match + confirm, 3-status lifecycle, flat tasks, manual project linking
+- Owner resolution added as 4th pipeline step (detect → summarize → extract → resolve)
+- Simple alias field for nickname matching (Mike → Michael)
+- Activity-focused person profiles showing assigned items and completion stats
+- **Resume:** Run `/gsd:plan-phase 2` to create execution plans
