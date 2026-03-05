@@ -9,14 +9,17 @@ export interface Meeting {
   id: string;
   status:
     | "pending"
+    | "uploaded"
     | "processing"
+    | "completed"
+    | "failed";
+  processing_step?:
     | "detecting_type"
     | "summarizing"
     | "extracting_actions"
     | "resolving_owners"
     | "generating_embeddings"
-    | "completed"
-    | "failed";
+    | null;
   title?: string;
   meeting_date?: string;
   meeting_type?: string;

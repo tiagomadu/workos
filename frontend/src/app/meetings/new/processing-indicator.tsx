@@ -11,6 +11,7 @@ import type { Meeting } from "@/types/meeting";
 
 interface ProcessingIndicatorProps {
   status: Meeting["status"];
+  processingStep?: Meeting["processing_step"];
   errorMessage?: string;
   llmProvider?: string;
   onRetry?: () => void;
@@ -22,7 +23,6 @@ const STEPS = [
   { key: "extracting_actions", label: "Extracting action items..." },
   { key: "resolving_owners", label: "Resolving action item owners..." },
   { key: "generating_embeddings", label: "Indexing for search..." },
-  { key: "completed", label: "Processing complete!" },
 ] as const;
 
 type StepKey = (typeof STEPS)[number]["key"];
@@ -33,51 +33,56 @@ const STEP_ORDER: StepKey[] = [
   "extracting_actions",
   "resolving_owners",
   "generating_embeddings",
-  "completed",
 ];
 
 function getStepState(
   stepKey: StepKey,
-  currentStatus: Meeting["status"]
+  meetingStatus: Meeting["status"],
+  processingStep?: Meeting["processing_step"],
 ): "active" | "completed" | "pending" {
-  if (currentStatus === "failed") {
-    const currentIdx = STEP_ORDER.indexOf(
-      currentStatus as StepKey
-    );
+  // Completed meeting: all steps done
+  if (meetingStatus === "completed") return "completed";
+
+  // Failed: mark steps before the current step as completed, current as pending
+  if (meetingStatus === "failed") {
+    if (!processingStep) return "pending";
+    const currentIdx = STEP_ORDER.indexOf(processingStep as StepKey);
     const stepIdx = STEP_ORDER.indexOf(stepKey);
-    // Mark steps before the failure point as completed
+    if (currentIdx === -1) return "pending";
     if (stepIdx < currentIdx) return "completed";
     return "pending";
   }
 
-  const currentIdx = STEP_ORDER.indexOf(currentStatus as StepKey);
-  const stepIdx = STEP_ORDER.indexOf(stepKey);
+  // Processing: use processing_step to determine progress
+  if (meetingStatus === "processing" && processingStep) {
+    const currentIdx = STEP_ORDER.indexOf(processingStep as StepKey);
+    const stepIdx = STEP_ORDER.indexOf(stepKey);
 
-  if (currentIdx === -1) {
-    // Status is "pending" or "processing" - all steps pending
+    if (currentIdx === -1) return "pending";
+    if (stepIdx < currentIdx) return "completed";
+    if (stepIdx === currentIdx) return "active";
     return "pending";
   }
 
-  if (stepIdx < currentIdx) return "completed";
-  if (stepIdx === currentIdx) {
-    return stepKey === "completed" ? "completed" : "active";
-  }
+  // uploaded / pending / no step yet — all pending
   return "pending";
 }
 
 export function ProcessingIndicator({
   status,
+  processingStep,
   errorMessage,
   llmProvider,
   onRetry,
 }: ProcessingIndicatorProps) {
   const isFailed = status === "failed";
+  const isComplete = status === "completed";
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         {STEPS.map((step) => {
-          const state = getStepState(step.key, status);
+          const state = getStepState(step.key, status, processingStep);
           return (
             <div key={step.key} className="flex items-center gap-3">
               {state === "active" && (
@@ -103,6 +108,22 @@ export function ProcessingIndicator({
             </div>
           );
         })}
+
+        {/* Processing complete row */}
+        <div className="flex items-center gap-3">
+          {isComplete ? (
+            <CheckCircle className="h-5 w-5 text-green-500" />
+          ) : (
+            <Circle className="h-5 w-5 text-muted-foreground/40" />
+          )}
+          <span
+            className={
+              isComplete ? "text-foreground font-medium" : "text-muted-foreground/40"
+            }
+          >
+            Processing complete!
+          </span>
+        </div>
       </div>
 
       {llmProvider && !isFailed && (

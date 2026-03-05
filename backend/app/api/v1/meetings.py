@@ -212,13 +212,13 @@ async def reprocess_meeting(
         )
 
     # Reset status
-    await storage.update_meeting_status(meeting_id, "pending")
+    await storage.update_meeting_status(meeting_id, "uploaded")
 
     # Re-trigger processing
     background_tasks.add_task(
         process_meeting,
         meeting_id=meeting_id,
-        transcript_text=meeting["raw_transcript"],
+        transcript_text=meeting["transcript_text"],
         provider=provider,
         user_id=user.id,
     )

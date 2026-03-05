@@ -260,6 +260,7 @@ export default function NewMeetingPage() {
           <CardContent>
             <ProcessingIndicator
               status={meetingQuery.data?.status ?? "pending"}
+              processingStep={meetingQuery.data?.processing_step}
               errorMessage={meetingQuery.data?.error_message}
               llmProvider={meetingQuery.data?.llm_provider}
               onRetry={handleRetry}

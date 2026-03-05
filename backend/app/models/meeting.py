@@ -13,6 +13,7 @@ class MeetingCreate(BaseModel):
 class MeetingResponse(BaseModel):
     id: str
     status: str
+    processing_step: Optional[str] = None
     title: Optional[str] = None
     meeting_type: Optional[str] = None
     meeting_type_confidence: Optional[str] = None
