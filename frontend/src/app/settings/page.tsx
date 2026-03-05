@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -35,7 +35,7 @@ function useAuthToken() {
   return token;
 }
 
-export default function SettingsPage() {
+function SettingsContent() {
   const token = useAuthToken();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -210,5 +210,19 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
     </main>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <p className="text-muted-foreground">Loading settings...</p>
+        </div>
+      }
+    >
+      <SettingsContent />
+    </Suspense>
   );
 }

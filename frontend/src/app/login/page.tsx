@@ -3,7 +3,7 @@ import { SignInButton } from "@/components/auth/sign-in-button"
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50">
+    <main className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">WorkOS</CardTitle>
