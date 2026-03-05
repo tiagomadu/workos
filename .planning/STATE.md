@@ -5,12 +5,12 @@
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Upload a transcript → structured summary + action items in under 2 minutes
-**Current focus:** Phase 2 — Entity Layer (next)
+**Current focus:** Phase 3 — Intelligence Layer (next)
 
 ## Current Phase
 
-**Phase:** 1 — Foundation + Auth + Core AI Pipeline
-**Status:** ✓ Complete (3/3 plans, 71 tests, 110 files)
+**Phase:** 2 — Entity Layer
+**Status:** ✓ Complete (2/2 plans, 111 tests, 157 files)
 **Blockers:** None
 
 ## Decisions Log
@@ -82,3 +82,29 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - Status mapping: UI "To Do/In Progress/Done" maps to DB not_started/in_progress/complete
 - Aliases stored in people.notes field (no schema change needed)
 - **Resume:** Run `/gsd:execute-phase 2` to execute plans
+
+### 2026-03-04 — Plan 02-01 Executed
+- People/Teams CRUD with searchable directory and modal dialogs
+- Owner resolution service: exact → alias → fuzzy matching (difflib SequenceMatcher)
+- 4th pipeline step: resolve_owners after extract_action_items
+- Person profile with action item stats (total, completed, overdue, completion rate)
+- Action items table enhanced with resolution status (green/amber/orange)
+- 24 new backend tests, total 95 passing
+- Committed as `be5f8c5` (23 files, 3,394 insertions)
+
+### 2026-03-04 — Plan 02-02 Executed
+- Master task tracker with filterable table (status, owner, project, archived)
+- Overdue detection, red badge, sort-to-top
+- Standalone task creation, inline editing, archiving
+- Project CRUD with Active/Archived lifecycle
+- Project detail page with linked meetings and task stats
+- Meeting-project linking via upload form dropdown and meeting detail
+- 16 new backend tests, total 111 passing
+- Committed as `6795e91` (24 files, 3,280 insertions)
+
+### 2026-03-04 — Phase 2 Complete ✓
+- All 22 requirements implemented: PEOPLE-08, TASKS-08, PROJECTS-06
+- 111 total backend tests + 9 frontend tests passing
+- 157+ files across 2 plans (47 new/modified files in Phase 2)
+- Entity layer complete: people → teams → projects → tasks → meetings all linked
+- **Resume:** Run `/gsd:discuss-phase 3` for Phase 3 (Intelligence Layer)
