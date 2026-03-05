@@ -14,7 +14,7 @@ async def upload_transcript(user_id: str, filename: str, content: bytes) -> str:
     path = f"{user_id}/{now.year}/{now.month:02d}/{now.strftime('%Y-%m-%d')}_{filename}"
     supabase = get_supabase_client()
     supabase.storage.from_("transcripts").upload(
-        path, content, {"content-type": "text/plain"}
+        path, content, {"content-type": "text/plain", "upsert": "true"}
     )
     return path
 
