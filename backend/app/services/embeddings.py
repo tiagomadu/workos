@@ -130,7 +130,7 @@ async def generate_embeddings(meeting_id: str, user_id: str) -> int:
 
     meeting = result.data[0]
     summary = meeting.get("summary") or {}
-    transcript = meeting.get("raw_transcript") or ""
+    transcript = meeting.get("transcript_text") or ""
 
     # Delete existing embeddings for reprocessing support
     supabase.table("document_embeddings").delete().eq("meeting_id", meeting_id).execute()

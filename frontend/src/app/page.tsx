@@ -5,15 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Calendar,
   ClipboardList,
   FolderOpen,
   Upload,
   Search,
   Users,
   UsersRound,
-  Mail,
-  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -62,25 +59,6 @@ function statusBadge(status: string) {
   }
 }
 
-function formatEventTime(startTime: string, endTime: string) {
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-  const dateStr = start.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-  const startStr = start.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-  const endStr = end.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-  return `${dateStr} · ${startStr} – ${endStr}`;
-}
-
 export default function DashboardPage() {
   const token = useAuthToken();
   const router = useRouter();
@@ -116,7 +94,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { action_items, action_items_counts, projects, upcoming_events } = data;
+  const { action_items, action_items_counts, projects } = data;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 space-y-6">
@@ -153,43 +131,22 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Top Right: Upcoming Calendar Events */}
+        {/* Top Right: Quick Search */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
-              Upcoming Events
+              Search Meetings
             </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Search className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {upcoming_events.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4">
-                No upcoming events this week.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {upcoming_events.slice(0, 5).map((evt) => (
-                  <div key={evt.id} className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium leading-tight">
-                        {evt.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatEventTime(evt.start_time, evt.end_time)}
-                      </p>
-                    </div>
-                    {evt.attendees_count > 0 && (
-                      <Badge variant="secondary" className="ml-2 shrink-0">
-                        {evt.attendees_count}
-                      </Badge>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            <Link href="/calendar">
-              <Button variant="outline" size="sm" className="mt-4">
-                View Calendar
+            <p className="text-sm text-muted-foreground py-4">
+              Ask questions about your meeting history using AI-powered search.
+            </p>
+            <Link href="/search">
+              <Button variant="outline" size="sm" className="mt-2">
+                <Search className="mr-1 h-4 w-4" />
+                Search Meetings
               </Button>
             </Link>
           </CardContent>
@@ -407,27 +364,6 @@ export default function DashboardPage() {
         >
           <UsersRound className="h-3.5 w-3.5" />
           Teams
-        </Link>
-        <Link
-          href="/calendar"
-          className="flex items-center gap-1 hover:text-foreground transition-colors"
-        >
-          <Calendar className="h-3.5 w-3.5" />
-          Calendar
-        </Link>
-        <Link
-          href="/emails"
-          className="flex items-center gap-1 hover:text-foreground transition-colors"
-        >
-          <Mail className="h-3.5 w-3.5" />
-          Emails
-        </Link>
-        <Link
-          href="/settings"
-          className="flex items-center gap-1 hover:text-foreground transition-colors"
-        >
-          <Settings className="h-3.5 w-3.5" />
-          Settings
         </Link>
       </div>
     </main>

@@ -111,6 +111,7 @@ export default function TeamDetailPage() {
         lead_id: team.lead_id ?? "",
         lead_name: team.lead_name ?? "",
         member_count: team.member_count,
+        created_at: team.created_at ?? "",
       }
     : undefined;
 

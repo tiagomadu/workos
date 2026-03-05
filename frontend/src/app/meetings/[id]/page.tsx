@@ -30,7 +30,6 @@ import { MeetingTypeBadge } from "./meeting-type-badge";
 import { SummaryView } from "./summary-view";
 import { SummaryEditor } from "./summary-editor";
 import { ActionItemsTable } from "./action-items-table";
-import { CalendarMatchBanner } from "./calendar-match-banner";
 
 function useAuthToken() {
   const [token, setToken] = useState<string | null>(null);
@@ -205,23 +204,6 @@ export default function MeetingDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 py-8">
-      {/* Review banner */}
-      {meeting.review_status === "pending_review" && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-amber-800 dark:text-amber-300">
-              This meeting hasn&apos;t been reviewed yet. AI results may need your confirmation.
-            </p>
-            <Link
-              href={`/meetings/${meetingId}/review`}
-              className="text-sm font-medium text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200"
-            >
-              Review now →
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Top bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -302,20 +284,6 @@ export default function MeetingDetailPage() {
             <SummaryView summary={meeting.summary} />
           )}
         </section>
-      )}
-
-      {/* Calendar match banner */}
-      {token && (
-        <CalendarMatchBanner
-          meetingId={meetingId}
-          token={token}
-          calendarEventId={meeting.calendar_event_id}
-          onLinked={() =>
-            queryClient.invalidateQueries({
-              queryKey: ["meeting", meetingId],
-            })
-          }
-        />
       )}
 
       {/* Action items section */}

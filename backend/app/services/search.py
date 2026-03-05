@@ -23,13 +23,11 @@ async def search_meetings(
     """Search meetings using RAG: embed query -> vector search -> LLM answer."""
     supabase = get_supabase_client()
 
-    # Step 1: Embed the query
+    # Step 1: Embed the query (falls back to text search if unavailable)
     query_embedding = await get_embedding(query)
     if query_embedding is None:
-        return {
-            "answer": "Search is currently unavailable. Please ensure Ollama is running with nomic-embed-text.",
-            "sources": [],
-        }
+        # Fallback: text-based search using ILIKE
+        return await _text_search_fallback(query, user_id, date_from, date_to, meeting_type, limit)
 
     # Step 2: Vector similarity search via match_documents RPC
     embedding_str = str(query_embedding)
@@ -106,3 +104,73 @@ async def search_meetings(
         answer = "I found relevant meetings but couldn't generate a summary. See the sources below."
 
     return {"answer": answer, "sources": enriched}
+
+
+async def _text_search_fallback(
+    query: str,
+    user_id: str,
+    date_from: str = None,
+    date_to: str = None,
+    meeting_type: str = None,
+    limit: int = 10,
+) -> dict:
+    """Fallback text-based search when embeddings are unavailable."""
+    supabase = get_supabase_client()
+
+    # Search across title, transcript_text, and summary using ILIKE
+    search_term = f"%{query}%"
+    q = (
+        supabase.table("meetings")
+        .select("id, title, meeting_date, meeting_type, summary, transcript_text")
+        .eq("user_id", user_id)
+        .eq("status", "completed")
+        .or_(f"title.ilike.{search_term},transcript_text.ilike.{search_term}")
+        .limit(limit)
+        .order("meeting_date", desc=True)
+    )
+
+    if date_from:
+        q = q.gte("meeting_date", date_from)
+    if date_to:
+        q = q.lte("meeting_date", date_to)
+    if meeting_type:
+        q = q.eq("meeting_type", meeting_type)
+
+    result = q.execute()
+    meetings = result.data or []
+
+    if not meetings:
+        return {"answer": "No meetings found matching your query.", "sources": []}
+
+    # Build sources from matched meetings
+    sources = []
+    for m in meetings:
+        summary = m.get("summary") or {}
+        chunk = summary.get("overview", "")
+        if not chunk and m.get("transcript_text"):
+            chunk = m["transcript_text"][:300] + "..."
+        sources.append({
+            "meeting_id": m["id"],
+            "meeting_title": m.get("title"),
+            "meeting_date": m.get("meeting_date"),
+            "meeting_type": m.get("meeting_type"),
+            "chunk_text": chunk,
+            "similarity": None,
+        })
+
+    # Generate AI answer from matched content
+    top_chunks = sources[:5]
+    prompt = render_prompt("generate_answer.j2", question=query, chunks=top_chunks)
+
+    try:
+        provider = create_llm_provider()
+        ai_result = await provider.generate_structured(
+            messages=[{"role": "user", "content": prompt}],
+            response_model=SearchAnswer,
+        )
+        answer = ai_result.answer
+    except Exception as e:
+        logger.error(f"Answer generation failed: {e}")
+        answer = "I found relevant meetings but couldn't generate a summary. See the sources below."
+
+    return {"answer": answer, "sources": sources}
