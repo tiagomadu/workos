@@ -21,6 +21,7 @@ const STEPS = [
   { key: "summarizing", label: "Generating summary..." },
   { key: "extracting_actions", label: "Extracting action items..." },
   { key: "resolving_owners", label: "Resolving action item owners..." },
+  { key: "generating_embeddings", label: "Indexing for search..." },
   { key: "completed", label: "Processing complete!" },
 ] as const;
 
@@ -31,6 +32,7 @@ const STEP_ORDER: StepKey[] = [
   "summarizing",
   "extracting_actions",
   "resolving_owners",
+  "generating_embeddings",
   "completed",
 ];
 

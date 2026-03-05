@@ -24,6 +24,7 @@ def _make_mock_supabase():
 
 @pytest.mark.asyncio
 class TestProcessMeeting:
+    @patch("app.services.embeddings.generate_embeddings", new_callable=AsyncMock, return_value=3)
     @patch("app.services.owner_resolution.get_supabase_client")
     @patch("app.services.processing.get_supabase_client")
     @patch("app.services.processing.update_meeting_status", new_callable=AsyncMock)
@@ -32,9 +33,10 @@ class TestProcessMeeting:
         mock_update_status: AsyncMock,
         mock_get_supabase: MagicMock,
         mock_get_supabase_resolution: MagicMock,
+        mock_generate_embeddings: AsyncMock,
         mock_llm_provider,
     ):
-        """Test that process_meeting runs type detection, summarization, action extraction, and owner resolution."""
+        """Test that process_meeting runs type detection, summarization, action extraction, owner resolution, and embedding generation."""
         mock_supabase = _make_mock_supabase()
         mock_get_supabase.return_value = mock_supabase
 
@@ -64,6 +66,7 @@ class TestProcessMeeting:
         assert ("meeting-123", "summarizing") in status_calls
         assert ("meeting-123", "extracting_actions") in status_calls
         assert ("meeting-123", "resolving_owners") in status_calls
+        assert ("meeting-123", "generating_embeddings") in status_calls
         assert ("meeting-123", "completed") in status_calls
 
         # Verify Supabase was called to save results

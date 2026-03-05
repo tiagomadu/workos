@@ -31,3 +31,9 @@ class MeetingTypeResult(BaseModel):
         description="One of: 1on1, team_huddle, project_review, business_partner, other"
     )
     confidence: str = Field(description="One of: high, medium, low")
+
+
+class SearchAnswer(BaseModel):
+    """Response model for RAG search answer generation."""
+
+    answer: str

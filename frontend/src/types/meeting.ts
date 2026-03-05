@@ -14,6 +14,7 @@ export interface Meeting {
     | "summarizing"
     | "extracting_actions"
     | "resolving_owners"
+    | "generating_embeddings"
     | "completed"
     | "failed";
   title?: string;
@@ -53,5 +54,6 @@ export type ProcessingStep =
   | "summarizing"
   | "extracting_actions"
   | "resolving_owners"
+  | "generating_embeddings"
   | "completed"
   | "failed";

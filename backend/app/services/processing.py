@@ -91,6 +91,12 @@ async def process_meeting(
         resolution_results = await resolve_owners(meeting_id, user_id)
         logger.info(f"Owner resolution: {len(resolution_results)} items processed")
 
+        # Step 5: Generate embeddings for search
+        await update_meeting_status(meeting_id, "generating_embeddings")
+        from app.services.embeddings import generate_embeddings
+        embed_count = await generate_embeddings(meeting_id, user_id)
+        logger.info(f"Generated {embed_count} embeddings for meeting {meeting_id}")
+
         # Mark as completed
         logger.info("Meeting %s: processing complete", meeting_id)
         await update_meeting_status(meeting_id, "completed")

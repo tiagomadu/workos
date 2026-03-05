@@ -20,6 +20,7 @@ import type {
   ProjectCreate,
   ProjectUpdate,
 } from "@/types/project";
+import type { SearchResult, SearchFilters } from "@/types/search";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -557,4 +558,27 @@ export async function linkMeetingToProject(
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to link meeting to project");
   }
+}
+
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+
+export async function searchMeetings(
+  query: string,
+  token: string,
+  filters?: SearchFilters
+): Promise<SearchResult> {
+  const params = new URLSearchParams({ q: query });
+  if (filters?.date_from) params.set("date_from", filters.date_from);
+  if (filters?.date_to) params.set("date_to", filters.date_to);
+  if (filters?.meeting_type) params.set("meeting_type", filters.meeting_type);
+  const res = await fetch(`${API_URL}/api/v1/search?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Search failed");
+  }
+  return res.json();
 }
