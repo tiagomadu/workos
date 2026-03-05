@@ -20,6 +20,7 @@ const STEPS = [
   { key: "detecting_type", label: "Detecting meeting type..." },
   { key: "summarizing", label: "Generating summary..." },
   { key: "extracting_actions", label: "Extracting action items..." },
+  { key: "resolving_owners", label: "Resolving action item owners..." },
   { key: "completed", label: "Processing complete!" },
 ] as const;
 
@@ -29,6 +30,7 @@ const STEP_ORDER: StepKey[] = [
   "detecting_type",
   "summarizing",
   "extracting_actions",
+  "resolving_owners",
   "completed",
 ];
 

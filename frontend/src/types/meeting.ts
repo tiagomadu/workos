@@ -1,3 +1,5 @@
+import type { OwnerCandidate } from "./people";
+
 export interface MeetingUploadResponse {
   meeting_id: string;
   status: string;
@@ -11,6 +13,7 @@ export interface Meeting {
     | "detecting_type"
     | "summarizing"
     | "extracting_actions"
+    | "resolving_owners"
     | "completed"
     | "failed";
   title?: string;
@@ -33,13 +36,19 @@ export interface ActionItem {
   id?: string;
   description: string;
   owner_name: string | null;
+  owner_id?: string | null;
+  owner_status?: "resolved" | "ambiguous" | "unresolved" | null;
+  owner_candidates?: OwnerCandidate[];
   due_date: string | null; // YYYY-MM-DD
   status: "not_started" | "in_progress" | "complete" | "cancelled";
+  project_id?: string | null;
+  meeting_id?: string;
 }
 
 export type ProcessingStep =
   | "detecting_type"
   | "summarizing"
   | "extracting_actions"
+  | "resolving_owners"
   | "completed"
   | "failed";

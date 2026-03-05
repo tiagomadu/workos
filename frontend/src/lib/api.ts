@@ -4,6 +4,15 @@ import type {
   MeetingSummary,
   MeetingUploadResponse,
 } from "@/types/meeting";
+import type {
+  Person,
+  PersonDetail,
+  PersonCreate,
+  PersonUpdate,
+  Team,
+  TeamCreate,
+  TeamUpdate,
+} from "@/types/people";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -162,4 +171,194 @@ export async function reprocessMeeting(
     throw new Error(error.detail || "Failed to reprocess");
   }
   return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// People
+// ---------------------------------------------------------------------------
+
+export async function getPeople(
+  token: string,
+  search?: string
+): Promise<Person[]> {
+  const params = search ? `?search=${encodeURIComponent(search)}` : "";
+  const res = await fetch(`${API_URL}/api/v1/people${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch people");
+  }
+  return res.json();
+}
+
+export async function getPerson(
+  personId: string,
+  token: string
+): Promise<PersonDetail> {
+  const res = await fetch(`${API_URL}/api/v1/people/${personId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch person");
+  }
+  return res.json();
+}
+
+export async function createPerson(
+  data: PersonCreate,
+  token: string
+): Promise<Person> {
+  const res = await fetch(`${API_URL}/api/v1/people`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to create person");
+  }
+  return res.json();
+}
+
+export async function updatePerson(
+  personId: string,
+  data: PersonUpdate,
+  token: string
+): Promise<Person> {
+  const res = await fetch(`${API_URL}/api/v1/people/${personId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to update person");
+  }
+  return res.json();
+}
+
+export async function deletePerson(
+  personId: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/people/${personId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to delete person");
+  }
+}
+
+export async function resolvePerson(
+  personId: string,
+  actionItemId: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/api/v1/action-items/${actionItemId}/resolve-owner`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ person_id: personId }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to resolve owner");
+  }
+}
+
+export async function getPersonActionItems(
+  personId: string,
+  token: string
+): Promise<ActionItem[]> {
+  const res = await fetch(`${API_URL}/api/v1/people/${personId}/action-items`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch person action items");
+  }
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Teams
+// ---------------------------------------------------------------------------
+
+export async function getTeams(token: string): Promise<Team[]> {
+  const res = await fetch(`${API_URL}/api/v1/teams`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch teams");
+  }
+  return res.json();
+}
+
+export async function createTeam(
+  data: TeamCreate,
+  token: string
+): Promise<Team> {
+  const res = await fetch(`${API_URL}/api/v1/teams`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to create team");
+  }
+  return res.json();
+}
+
+export async function updateTeam(
+  teamId: string,
+  data: TeamUpdate,
+  token: string
+): Promise<Team> {
+  const res = await fetch(`${API_URL}/api/v1/teams/${teamId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to update team");
+  }
+  return res.json();
+}
+
+export async function deleteTeam(
+  teamId: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/teams/${teamId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to delete team");
+  }
 }

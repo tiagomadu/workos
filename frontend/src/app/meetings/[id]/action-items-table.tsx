@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { AlertTriangle, Plus, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Plus,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +20,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ActionItem } from "@/types/meeting";
+import { getPeople, resolvePerson } from "@/lib/api";
+import { createClient } from "@/lib/supabase/client";
 
 interface ActionItemsTableProps {
   initialItems: ActionItem[];
@@ -35,11 +52,180 @@ function newEmptyItem(): ActionItem {
   };
 }
 
+function useAuthToken() {
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      setToken(data.session?.access_token ?? null);
+    });
+  }, []);
+
+  return token;
+}
+
+function OwnerCell({
+  item,
+  token,
+  onUpdate,
+}: {
+  item: ActionItem;
+  token: string | null;
+  onUpdate: (updates: Partial<ActionItem>) => void;
+}) {
+  const queryClient = useQueryClient();
+  const [assignMode, setAssignMode] = useState(false);
+
+  const { data: allPeople } = useQuery({
+    queryKey: ["people"],
+    queryFn: () => getPeople(token!),
+    enabled: !!token && (assignMode || item.owner_status === "unresolved"),
+    staleTime: 30000,
+  });
+
+  async function handleResolve(personId: string, actionItemId: string) {
+    if (!token || !actionItemId) return;
+    try {
+      await resolvePerson(personId, actionItemId, token);
+      queryClient.invalidateQueries({ queryKey: ["actionItems"] });
+    } catch {
+      // Could add toast notification here
+    }
+  }
+
+  // Resolved owner -- show green checkmark and link
+  if (item.owner_status === "resolved" && item.owner_id) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <CheckCircle className="h-3.5 w-3.5 shrink-0 text-green-500" />
+        <Link
+          href={`/people/${item.owner_id}`}
+          className="text-xs font-medium text-primary hover:underline"
+        >
+          {item.owner_name}
+        </Link>
+      </div>
+    );
+  }
+
+  // Ambiguous owner -- show amber name with candidate dropdown
+  if (item.owner_status === "ambiguous" && item.owner_candidates && item.id) {
+    return (
+      <div className="space-y-1">
+        <div className="flex items-center gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+          <span className="text-xs font-medium text-amber-600">
+            {item.owner_name}
+          </span>
+        </div>
+        <Select
+          onValueChange={(personId) => handleResolve(personId, item.id!)}
+        >
+          <SelectTrigger className="h-7 text-xs">
+            <SelectValue placeholder="Pick match..." />
+          </SelectTrigger>
+          <SelectContent>
+            {item.owner_candidates.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name} ({Math.round(c.score * 100)}%)
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Unresolved owner -- show orange name with assign button/dropdown
+  if (item.owner_status === "unresolved" && item.owner_name) {
+    if (assignMode) {
+      return (
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-orange-500" />
+            <span className="text-xs font-medium text-orange-600">
+              {item.owner_name}
+            </span>
+          </div>
+          <Select
+            onValueChange={(personId) => {
+              if (item.id) handleResolve(personId, item.id);
+              setAssignMode(false);
+            }}
+          >
+            <SelectTrigger className="h-7 text-xs">
+              <SelectValue placeholder="Select person..." />
+            </SelectTrigger>
+            <SelectContent>
+              {allPeople?.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-1.5">
+        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-orange-500" />
+        <span className="text-xs font-medium text-orange-600">
+          {item.owner_name}
+        </span>
+        {item.id && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            title="Assign to a person"
+            onClick={() => setAssignMode(true)}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  // No owner or no owner_status (new row or null owner) -- editable input
+  if (!item.owner_name || !item.owner_status) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <Input
+          value={item.owner_name ?? ""}
+          onChange={(e) =>
+            onUpdate({ owner_name: e.target.value || null })
+          }
+          placeholder={item.owner_name === null ? "Unassigned" : "Owner"}
+          className="h-8 text-xs"
+        />
+        {item.owner_name && item.owner_name.trim() !== "" && !item.owner_status && (
+          <span title="No match found in people directory">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback -- unassigned
+  return <span className="text-xs text-muted-foreground">Unassigned</span>;
+}
+
 export function ActionItemsTable({
   initialItems,
   onSave,
 }: ActionItemsTableProps) {
   const [items, setItems] = useState<ActionItem[]>(initialItems);
+  const token = useAuthToken();
+
+  // Sync with prop changes (e.g., after owner resolution refetch)
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
 
   function updateItem(index: number, updates: Partial<ActionItem>) {
     setItems((prev) =>
@@ -61,7 +247,7 @@ export function ActionItemsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[140px]">Owner</TableHead>
+              <TableHead className="w-[180px]">Owner</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="w-[140px]">Due Date</TableHead>
               <TableHead className="w-[140px]">Status</TableHead>
@@ -80,25 +266,13 @@ export function ActionItemsTable({
               </TableRow>
             ) : (
               items.map((item, index) => (
-                <TableRow key={index}>
+                <TableRow key={item.id ?? index}>
                   <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <Input
-                        value={item.owner_name ?? ""}
-                        onChange={(e) =>
-                          updateItem(index, {
-                            owner_name: e.target.value || null,
-                          })
-                        }
-                        placeholder="Owner"
-                        className="h-8 text-xs"
-                      />
-                      {item.owner_name && item.owner_name.trim() !== "" && (
-                        <span title="No match found in people directory">
-                          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                        </span>
-                      )}
-                    </div>
+                    <OwnerCell
+                      item={item}
+                      token={token}
+                      onUpdate={(updates) => updateItem(index, updates)}
+                    />
                   </TableCell>
                   <TableCell>
                     <Input

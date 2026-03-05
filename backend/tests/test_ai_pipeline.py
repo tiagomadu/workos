@@ -24,17 +24,32 @@ def _make_mock_supabase():
 
 @pytest.mark.asyncio
 class TestProcessMeeting:
+    @patch("app.services.owner_resolution.get_supabase_client")
     @patch("app.services.processing.get_supabase_client")
     @patch("app.services.processing.update_meeting_status", new_callable=AsyncMock)
     async def test_runs_all_three_steps(
         self,
         mock_update_status: AsyncMock,
         mock_get_supabase: MagicMock,
+        mock_get_supabase_resolution: MagicMock,
         mock_llm_provider,
     ):
-        """Test that process_meeting runs type detection, summarization, and action extraction."""
+        """Test that process_meeting runs type detection, summarization, action extraction, and owner resolution."""
         mock_supabase = _make_mock_supabase()
         mock_get_supabase.return_value = mock_supabase
+
+        # Mock for owner resolution: return no unresolved items
+        mock_resolution_supabase = _make_mock_supabase()
+        mock_resolution_table = MagicMock()
+        mock_resolution_table.select.return_value = mock_resolution_table
+        mock_resolution_table.eq.return_value = mock_resolution_table
+        not_mock = MagicMock()
+        not_mock.is_.return_value = mock_resolution_table
+        mock_resolution_table.not_ = not_mock
+        mock_resolution_table.is_.return_value = mock_resolution_table
+        mock_resolution_table.execute.return_value = MagicMock(data=[])
+        mock_resolution_supabase.table.return_value = mock_resolution_table
+        mock_get_supabase_resolution.return_value = mock_resolution_supabase
 
         await process_meeting(
             meeting_id="meeting-123",
@@ -48,6 +63,7 @@ class TestProcessMeeting:
         assert ("meeting-123", "detecting_type") in status_calls
         assert ("meeting-123", "summarizing") in status_calls
         assert ("meeting-123", "extracting_actions") in status_calls
+        assert ("meeting-123", "resolving_owners") in status_calls
         assert ("meeting-123", "completed") in status_calls
 
         # Verify Supabase was called to save results

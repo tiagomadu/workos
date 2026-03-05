@@ -24,6 +24,7 @@ async def process_meeting(
     1. Detect meeting type
     2. Generate summary
     3. Extract action items
+    4. Resolve owners
     """
     try:
         # Step 1: Detect meeting type
@@ -83,6 +84,12 @@ async def process_meeting(
                 "due_date": item.due_date or default_due,
                 "status": "not_started",
             }).execute()
+
+        # Step 4: Resolve owners
+        await update_meeting_status(meeting_id, "resolving_owners")
+        from app.services.owner_resolution import resolve_owners
+        resolution_results = await resolve_owners(meeting_id, user_id)
+        logger.info(f"Owner resolution: {len(resolution_results)} items processed")
 
         # Mark as completed
         logger.info("Meeting %s: processing complete", meeting_id)

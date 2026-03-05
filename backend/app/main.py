@@ -11,6 +11,8 @@ from app.core.config import settings
 from app.core.logging import setup_logging
 from app.api.v1.health import router as health_router
 from app.api.v1.meetings import router as meetings_router
+from app.api.v1.people import router as people_router
+from app.api.v1.teams import router as teams_router
 
 logger = logging.getLogger(__name__)
 
@@ -42,3 +44,5 @@ app.add_middleware(
 # Routers
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(meetings_router)
+app.include_router(people_router, prefix="/api/v1")
+app.include_router(teams_router, prefix="/api/v1")
