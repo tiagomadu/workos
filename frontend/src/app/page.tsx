@@ -11,6 +11,7 @@ import {
   Upload,
   Search,
   Users,
+  UsersRound,
   Mail,
   Settings,
 } from "lucide-react";
@@ -399,6 +400,13 @@ export default function DashboardPage() {
         >
           <Users className="h-3.5 w-3.5" />
           People
+        </Link>
+        <Link
+          href="/teams"
+          className="flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          <UsersRound className="h-3.5 w-3.5" />
+          Teams
         </Link>
         <Link
           href="/calendar"

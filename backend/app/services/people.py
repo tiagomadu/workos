@@ -252,6 +252,60 @@ async def get_team(user_id: str, team_id: str) -> dict | None:
     }
 
 
+async def get_team_with_details(user_id: str, team_id: str) -> dict | None:
+    """Fetch a team with its members and associated projects."""
+    supabase = get_supabase_client()
+
+    # Get team info
+    team_result = (
+        supabase.table("teams")
+        .select("*, people!teams_lead_id_fkey(name)")
+        .eq("id", team_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    if not team_result.data:
+        return None
+
+    row = team_result.data[0]
+    lead_name = None
+    if row.get("people") and isinstance(row["people"], dict):
+        lead_name = row["people"].get("name")
+
+    # Get members
+    members_result = (
+        supabase.table("people")
+        .select("id, name, role_title, email, notes")
+        .eq("user_id", user_id)
+        .eq("team_id", team_id)
+        .order("name")
+        .execute()
+    )
+
+    # Get projects for this team
+    projects_result = (
+        supabase.table("projects")
+        .select("id, name, description, status, created_at")
+        .eq("user_id", user_id)
+        .eq("team_id", team_id)
+        .neq("status", "archived")
+        .order("name")
+        .execute()
+    )
+
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "description": row.get("description"),
+        "lead_id": row.get("lead_id"),
+        "lead_name": lead_name,
+        "member_count": len(members_result.data),
+        "members": members_result.data,
+        "projects": projects_result.data,
+        "created_at": row.get("created_at"),
+    }
+
+
 async def update_team(user_id: str, team_id: str, data: TeamUpdate) -> dict:
     """Update an existing team record."""
     supabase = get_supabase_client()

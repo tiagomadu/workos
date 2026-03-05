@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.auth import AuthenticatedUser, get_current_user
-from app.models.people import TeamCreate, TeamUpdate, TeamResponse
+from app.models.people import TeamCreate, TeamUpdate, TeamResponse, TeamDetailResponse
 from app.services import people as people_service
 
 logger = logging.getLogger(__name__)
@@ -38,6 +38,21 @@ async def list_teams(
     """List all teams."""
     teams = await people_service.get_teams(user.id)
     return [TeamResponse(**t) for t in teams]
+
+
+@router.get("/teams/{team_id}/detail", response_model=TeamDetailResponse)
+async def get_team_detail(
+    team_id: str,
+    user: AuthenticatedUser = Depends(get_current_user),
+) -> TeamDetailResponse:
+    """Get team with members and projects."""
+    team = await people_service.get_team_with_details(user.id, team_id)
+    if not team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Team not found",
+        )
+    return TeamDetailResponse(**team)
 
 
 @router.get("/teams/{team_id}", response_model=TeamResponse)

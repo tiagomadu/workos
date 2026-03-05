@@ -62,6 +62,32 @@ class TeamResponse(BaseModel):
     created_at: Optional[str] = None
 
 
+class TeamMember(BaseModel):
+    id: str
+    name: str
+    role_title: Optional[str] = None
+    email: Optional[str] = None
+
+
+class TeamProject(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    status: str = "on_track"
+
+
+class TeamDetailResponse(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    lead_id: Optional[str] = None
+    lead_name: Optional[str] = None
+    member_count: int = 0
+    members: list[TeamMember] = []
+    projects: list[TeamProject] = []
+    created_at: Optional[str] = None
+
+
 # --- Owner resolution models ---
 
 class OwnerResolutionResult(BaseModel):

@@ -379,6 +379,30 @@ export async function deleteTeam(
   }
 }
 
+export async function getTeamDetail(
+  teamId: string,
+  token: string
+): Promise<{
+  id: string;
+  name: string;
+  description?: string;
+  lead_id?: string;
+  lead_name?: string;
+  member_count: number;
+  members: Array<{ id: string; name: string; role_title?: string; email?: string }>;
+  projects: Array<{ id: string; name: string; description?: string; status: string }>;
+  created_at?: string;
+}> {
+  const res = await fetch(`${API_URL}/api/v1/teams/${teamId}/detail`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch team details");
+  }
+  return res.json();
+}
+
 // ---------------------------------------------------------------------------
 // Tasks
 // ---------------------------------------------------------------------------
