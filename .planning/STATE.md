@@ -73,3 +73,12 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - Simple alias field for nickname matching (Mike → Michael)
 - Activity-focused person profiles showing assigned items and completion stats
 - **Resume:** Run `/gsd:plan-phase 2` to create execution plans
+
+### 2026-03-04 — Phase 2 Plans Created
+- Plan 02-01: People/Teams/Owner Resolution (PEOPLE-01–08) — 2 parallel tasks
+- Plan 02-02: Task Tracker/Project Tracking (TASKS-01–08, PROJECTS-01–06) — 2 parallel tasks
+- Key insight: all DB tables already exist from Phase 1 migration — no new migrations needed
+- Owner resolution as 4th pipeline step: detect → summarize → extract → resolve
+- Status mapping: UI "To Do/In Progress/Done" maps to DB not_started/in_progress/complete
+- Aliases stored in people.notes field (no schema change needed)
+- **Resume:** Run `/gsd:execute-phase 2` to execute plans
