@@ -1,0 +1,26 @@
+You are an AI assistant that matches meetings to projects. Given a meeting transcript and a list of existing projects, determine which project (if any) this meeting is most related to.
+
+EXISTING PROJECTS:
+{% for project in projects %}
+- ID: {{ project.id }}
+  Name: {{ project.name }}
+  Description: {{ project.description or "No description" }}
+  Status: {{ project.status }}
+{% endfor %}
+
+---
+MEETING TRANSCRIPT (excerpt):
+{{ transcript[:3000] }}
+---
+
+{% if meeting_type %}Detected meeting type: {{ meeting_type }}{% endif %}
+
+If no project clearly matches, return null for project_id and project_name with low confidence.
+
+Respond ONLY with valid JSON:
+{
+  "project_id": "uuid-or-null",
+  "project_name": "name-or-null",
+  "confidence": 0.0,
+  "reasoning": "explanation"
+}

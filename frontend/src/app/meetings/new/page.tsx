@@ -149,10 +149,10 @@ export default function NewMeetingPage() {
     },
   });
 
-  // Redirect on completion
+  // Redirect to review page on completion
   const meetingStatus = meetingQuery.data?.status;
   if (meetingStatus === "completed" && meetingId) {
-    router.push(`/meetings/${meetingId}`);
+    router.push(`/meetings/${meetingId}/review`);
   }
 
   // --- Retry handler ---

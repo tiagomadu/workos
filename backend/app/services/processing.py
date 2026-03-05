@@ -4,9 +4,10 @@ import logging
 from datetime import datetime, timezone, timedelta
 
 from app.ai.provider import LLMProvider
-from app.ai.schemas import MeetingSummary, ActionItemsResult, MeetingTypeResult
+from app.ai.schemas import MeetingSummary, ActionItemsResult, MeetingTypeResult, ProjectSuggestion
 from app.ai.prompt_renderer import render_prompt
 from app.services.storage import update_meeting_status
+from app.services.projects import get_projects
 from app.core.supabase import get_supabase_client
 
 logger = logging.getLogger(__name__)
@@ -22,9 +23,11 @@ async def process_meeting(
 
     Steps:
     1. Detect meeting type
-    2. Generate summary
-    3. Extract action items
-    4. Resolve owners
+    2. Suggest project
+    3. Generate summary
+    4. Extract action items
+    5. Resolve owners
+    6. Generate embeddings
     """
     try:
         # Step 1: Detect meeting type
@@ -50,7 +53,31 @@ async def process_meeting(
             "meeting_type_confidence": confidence_val,
         }).eq("id", meeting_id).execute()
 
-        # Step 2: Generate summary
+        # Step 2: Suggest project
+        logger.info("Meeting %s: suggesting project", meeting_id)
+        await update_meeting_status(meeting_id, "processing", processing_step="suggesting_project")
+
+        projects = await get_projects(user_id)
+        if projects:
+            project_prompt = render_prompt(
+                "suggest_project.j2",
+                transcript=transcript_text,
+                meeting_type=type_result.meeting_type,
+                projects=projects,
+            )
+            try:
+                project_result = await provider.generate_structured(
+                    messages=[{"role": "user", "content": project_prompt}],
+                    response_model=ProjectSuggestion,
+                )
+                if project_result.project_id and project_result.confidence >= 0.5:
+                    supabase.table("meetings").update({
+                        "suggested_project_id": project_result.project_id,
+                    }).eq("id", meeting_id).execute()
+            except Exception as proj_err:
+                logger.warning("Project suggestion failed: %s", proj_err)
+
+        # Step 3: Generate summary
         logger.info("Meeting %s: generating summary", meeting_id)
         await update_meeting_status(meeting_id, "processing", processing_step="summarizing")
 
@@ -65,7 +92,7 @@ async def process_meeting(
             "summary": summary_result.model_dump(),
         }).eq("id", meeting_id).execute()
 
-        # Step 3: Extract action items
+        # Step 4: Extract action items
         logger.info("Meeting %s: extracting action items", meeting_id)
         await update_meeting_status(meeting_id, "processing", processing_step="extracting_actions")
 
@@ -91,21 +118,26 @@ async def process_meeting(
                 "status": "not_started",
             }).execute()
 
-        # Step 4: Resolve owners
+        # Step 5: Resolve owners
         await update_meeting_status(meeting_id, "processing", processing_step="resolving_owners")
         from app.services.owner_resolution import resolve_owners
         resolution_results = await resolve_owners(meeting_id, user_id)
         logger.info(f"Owner resolution: {len(resolution_results)} items processed")
 
-        # Step 5: Generate embeddings for search
+        # Step 6: Generate embeddings for search
         await update_meeting_status(meeting_id, "processing", processing_step="generating_embeddings")
         from app.services.embeddings import generate_embeddings
         embed_count = await generate_embeddings(meeting_id, user_id)
         logger.info(f"Generated {embed_count} embeddings for meeting {meeting_id}")
 
-        # Mark as completed
-        logger.info("Meeting %s: processing complete", meeting_id)
-        await update_meeting_status(meeting_id, "completed")
+        # Mark as completed with pending review
+        logger.info("Meeting %s: processing complete, pending review", meeting_id)
+        supabase.table("meetings").update({
+            "status": "completed",
+            "processing_step": None,
+            "review_status": "pending_review",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }).eq("id", meeting_id).execute()
 
     except Exception as e:
         logger.error("Meeting %s: processing failed: %s", meeting_id, str(e), exc_info=True)

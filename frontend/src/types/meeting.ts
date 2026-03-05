@@ -15,11 +15,14 @@ export interface Meeting {
     | "failed";
   processing_step?:
     | "detecting_type"
+    | "suggesting_project"
     | "summarizing"
     | "extracting_actions"
     | "resolving_owners"
     | "generating_embeddings"
     | null;
+  review_status?: "pending_review" | "reviewed" | null;
+  suggested_project_id?: string | null;
   title?: string;
   meeting_date?: string;
   meeting_type?: string;
@@ -55,9 +58,45 @@ export interface ActionItem {
 
 export type ProcessingStep =
   | "detecting_type"
+  | "suggesting_project"
   | "summarizing"
   | "extracting_actions"
   | "resolving_owners"
   | "generating_embeddings"
   | "completed"
   | "failed";
+
+// --- Review page types ---
+
+export interface MeetingReviewData {
+  id: string;
+  title?: string;
+  meeting_date?: string;
+  status: string;
+  review_status?: string;
+  meeting_type?: string;
+  meeting_type_confidence?: number;
+  suggested_project_id?: string;
+  suggested_project_name?: string;
+  summary?: MeetingSummary;
+  action_items: ReviewActionItem[];
+  available_projects: Array<{ id: string; name: string }>;
+  available_people: Array<{ id: string; name: string }>;
+}
+
+export interface ReviewActionItem {
+  id?: string;
+  description: string;
+  owner_name?: string | null;
+  owner_id?: string | null;
+  due_date?: string | null;
+  status: string;
+  deleted?: boolean;
+}
+
+export interface DocumentSuggestion {
+  doc_type: string;
+  title: string;
+  description: string;
+  relevance_score: number;
+}

@@ -3,6 +3,9 @@ import type {
   Meeting,
   MeetingSummary,
   MeetingUploadResponse,
+  MeetingReviewData,
+  ReviewActionItem,
+  DocumentSuggestion,
 } from "@/types/meeting";
 import type {
   Person,
@@ -185,6 +188,120 @@ export async function reprocessMeeting(
       .json()
       .catch(() => ({ detail: "Failed to reprocess" }));
     throw new Error(error.detail || "Failed to reprocess");
+  }
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Meeting Review
+// ---------------------------------------------------------------------------
+
+export async function getMeetingReviewData(
+  meetingId: string,
+  token: string
+): Promise<MeetingReviewData> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/review-data`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch review data");
+  }
+  return res.json();
+}
+
+export async function confirmReview(
+  meetingId: string,
+  data: {
+    meeting_type?: string;
+    project_id?: string | null;
+    summary?: MeetingSummary;
+    action_items?: ReviewActionItem[];
+  },
+  token: string
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/confirm-review`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to confirm review");
+  }
+}
+
+export async function skipReview(
+  meetingId: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/skip-review`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to skip review");
+  }
+}
+
+export async function suggestDocuments(
+  meetingId: string,
+  data: {
+    meeting_type?: string;
+    summary_overview?: string;
+    key_topics: string[];
+    decisions: string[];
+  },
+  token: string
+): Promise<DocumentSuggestion[]> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/suggest-documents`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to get document suggestions");
+  }
+  return res.json();
+}
+
+export async function generateDocument(
+  meetingId: string,
+  docType: string,
+  token: string
+): Promise<{ doc_type: string; content: string }> {
+  const res = await fetch(
+    `${API_URL}/api/v1/meetings/${meetingId}/generate-document`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ doc_type: docType }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to generate document");
   }
   return res.json();
 }

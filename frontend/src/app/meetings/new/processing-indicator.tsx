@@ -19,6 +19,7 @@ interface ProcessingIndicatorProps {
 
 const STEPS = [
   { key: "detecting_type", label: "Detecting meeting type..." },
+  { key: "suggesting_project", label: "Matching to project..." },
   { key: "summarizing", label: "Generating summary..." },
   { key: "extracting_actions", label: "Extracting action items..." },
   { key: "resolving_owners", label: "Resolving action item owners..." },
@@ -29,6 +30,7 @@ type StepKey = (typeof STEPS)[number]["key"];
 
 const STEP_ORDER: StepKey[] = [
   "detecting_type",
+  "suggesting_project",
   "summarizing",
   "extracting_actions",
   "resolving_owners",

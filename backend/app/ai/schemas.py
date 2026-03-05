@@ -37,3 +37,36 @@ class SearchAnswer(BaseModel):
     """Response model for RAG search answer generation."""
 
     answer: str
+
+
+class ProjectSuggestion(BaseModel):
+    """AI-suggested project match for a meeting."""
+    project_id: str | None = Field(
+        default=None, description="ID of the best matching project, null if no match"
+    )
+    project_name: str | None = Field(
+        default=None, description="Name of the matched project"
+    )
+    confidence: float = Field(
+        description="Match confidence from 0.0 to 1.0"
+    )
+    reasoning: str = Field(
+        description="Brief explanation of why this project was chosen"
+    )
+
+
+class DocumentSuggestion(BaseModel):
+    """A single suggested document to generate from a meeting."""
+    doc_type: str = Field(
+        description="One of: follow_up_email, meeting_minutes, project_update, decision_log"
+    )
+    title: str = Field(description="Suggested title for the document")
+    description: str = Field(description="What this document would contain")
+    relevance_score: float = Field(description="How useful this doc would be, 0.0 to 1.0")
+
+
+class DocumentSuggestionsResult(BaseModel):
+    """AI-suggested documents to generate from a meeting."""
+    suggestions: list[DocumentSuggestion] = Field(
+        description="List of suggested documents"
+    )

@@ -1,0 +1,24 @@
+You are an AI assistant generating a {{ doc_type_label }} based on a meeting.
+
+MEETING DATE: {{ meeting_date or "Not specified" }}
+MEETING TYPE: {{ meeting_type or "General" }}
+
+MEETING SUMMARY:
+{{ summary_overview }}
+
+KEY TOPICS:
+{% for topic in key_topics %}
+- {{ topic }}
+{% endfor %}
+
+DECISIONS:
+{% for decision in decisions %}
+- {{ decision }}
+{% endfor %}
+
+ACTION ITEMS:
+{% for item in action_items %}
+- {{ item.description }} (Owner: {{ item.owner_name or "Unassigned" }}{% if item.due_date %}, Due: {{ item.due_date }}{% endif %})
+{% endfor %}
+
+Generate a professional {{ doc_type_label }}. Use clear structure with headers where appropriate. Output in Markdown format.
