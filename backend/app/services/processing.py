@@ -38,10 +38,16 @@ async def process_meeting(
         )
 
         # Save meeting type to DB
+        # Convert string confidence ("high"/"medium"/"low") to float for DB real column
+        confidence_map = {"high": 0.9, "medium": 0.7, "low": 0.4}
+        confidence_val = confidence_map.get(
+            str(type_result.confidence).lower(), 0.5
+        )
+
         supabase = get_supabase_client()
         supabase.table("meetings").update({
             "meeting_type": type_result.meeting_type,
-            "meeting_type_confidence": type_result.confidence,
+            "meeting_type_confidence": confidence_val,
         }).eq("id", meeting_id).execute()
 
         # Step 2: Generate summary
