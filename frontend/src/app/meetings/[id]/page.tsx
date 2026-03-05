@@ -30,6 +30,7 @@ import { MeetingTypeBadge } from "./meeting-type-badge";
 import { SummaryView } from "./summary-view";
 import { SummaryEditor } from "./summary-editor";
 import { ActionItemsTable } from "./action-items-table";
+import { CalendarMatchBanner } from "./calendar-match-banner";
 
 function useAuthToken() {
   const [token, setToken] = useState<string | null>(null);
@@ -284,6 +285,20 @@ export default function MeetingDetailPage() {
             <SummaryView summary={meeting.summary} />
           )}
         </section>
+      )}
+
+      {/* Calendar match banner */}
+      {token && (
+        <CalendarMatchBanner
+          meetingId={meetingId}
+          token={token}
+          calendarEventId={meeting.calendar_event_id}
+          onLinked={() =>
+            queryClient.invalidateQueries({
+              queryKey: ["meeting", meetingId],
+            })
+          }
+        />
       )}
 
       {/* Action items section */}

@@ -16,6 +16,7 @@ from app.api.v1.teams import router as teams_router
 from app.api.v1.tasks import router as tasks_router
 from app.api.v1.projects import router as projects_router
 from app.api.v1.search import router as search_router
+from app.api.v1.calendar import router as calendar_router
 
 logger = logging.getLogger(__name__)
 
@@ -52,3 +53,4 @@ app.include_router(teams_router, prefix="/api/v1")
 app.include_router(tasks_router, prefix="/api/v1")
 app.include_router(projects_router, prefix="/api/v1")
 app.include_router(search_router, prefix="/api/v1")
+app.include_router(calendar_router, prefix="/api/v1")

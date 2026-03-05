@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://host.docker.internal:11434"
     ANTHROPIC_API_KEY: str = ""
 
+    # Google OAuth (for Calendar + Gmail API access)
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:3000/settings"
+
     # CORS
     ALLOWED_ORIGINS: str = "http://localhost:3000"
 

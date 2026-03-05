@@ -21,6 +21,12 @@ import type {
   ProjectUpdate,
 } from "@/types/project";
 import type { SearchResult, SearchFilters } from "@/types/search";
+import type {
+  CalendarEvent,
+  CalendarSyncResponse,
+  GoogleConnectionStatus,
+  CalendarMatchSuggestion,
+} from "@/types/calendar";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -581,4 +587,159 @@ export async function searchMeetings(
     throw new Error(err.detail || "Search failed");
   }
   return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Calendar & Google OAuth
+// ---------------------------------------------------------------------------
+
+export async function getGoogleAuthUrl(
+  token: string
+): Promise<{ url: string }> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/auth-url`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to get auth URL");
+  }
+  return res.json();
+}
+
+export async function connectGoogle(
+  code: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/callback`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ code }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to connect Google");
+  }
+}
+
+export async function getGoogleStatus(
+  token: string
+): Promise<GoogleConnectionStatus> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to get Google status");
+  }
+  return res.json();
+}
+
+export async function disconnectGoogle(token: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/disconnect`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to disconnect Google");
+  }
+}
+
+export async function syncCalendar(
+  token: string
+): Promise<CalendarSyncResponse> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/sync`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to sync calendar");
+  }
+  return res.json();
+}
+
+export async function getCalendarEvents(
+  token: string
+): Promise<CalendarEvent[]> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/events`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch calendar events");
+  }
+  return res.json();
+}
+
+export async function getUpcomingEvents(
+  token: string
+): Promise<CalendarEvent[]> {
+  const res = await fetch(`${API_URL}/api/v1/calendar/events/upcoming`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch upcoming events");
+  }
+  return res.json();
+}
+
+export async function getCalendarMatches(
+  meetingId: string,
+  token: string
+): Promise<CalendarMatchSuggestion[]> {
+  const res = await fetch(
+    `${API_URL}/api/v1/calendar/match/${meetingId}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to get calendar matches");
+  }
+  return res.json();
+}
+
+export async function linkCalendarEvent(
+  meetingId: string,
+  calendarEventId: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/api/v1/calendar/link/${meetingId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ calendar_event_id: calendarEventId }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to link calendar event");
+  }
+}
+
+export async function unlinkCalendarEvent(
+  meetingId: string,
+  token: string
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/api/v1/calendar/unlink/${meetingId}`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to unlink calendar event");
+  }
 }

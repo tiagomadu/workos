@@ -23,6 +23,7 @@ export interface Meeting {
   meeting_type_confidence?: string;
   project_id?: string;
   project_name?: string;
+  calendar_event_id?: string | null;
   summary?: MeetingSummary;
   error_message?: string;
   created_at: string;
