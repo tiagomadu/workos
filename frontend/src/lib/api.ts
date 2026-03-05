@@ -27,6 +27,7 @@ import type {
   GoogleConnectionStatus,
   CalendarMatchSuggestion,
 } from "@/types/calendar";
+import type { GmailThread, GmailThreadDetail } from "@/types/email";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -742,4 +743,54 @@ export async function unlinkCalendarEvent(
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to unlink calendar event");
   }
+}
+
+// ---------------------------------------------------------------------------
+// Gmail / Email Threads
+// ---------------------------------------------------------------------------
+
+export async function getGmailThreads(
+  token: string
+): Promise<GmailThread[]> {
+  const res = await fetch(`${API_URL}/api/v1/email/threads`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch email threads");
+  }
+  const data = await res.json();
+  return data.threads;
+}
+
+export async function getGmailThread(
+  threadId: string,
+  token: string
+): Promise<GmailThreadDetail> {
+  const res = await fetch(`${API_URL}/api/v1/email/threads/${threadId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch email thread");
+  }
+  return res.json();
+}
+
+export async function importEmailThread(
+  threadId: string,
+  token: string
+): Promise<MeetingUploadResponse> {
+  const res = await fetch(
+    `${API_URL}/api/v1/email/threads/${threadId}/import`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to import email thread");
+  }
+  return res.json();
 }
