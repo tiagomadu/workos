@@ -5,12 +5,12 @@
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Upload a transcript → structured summary + action items in under 2 minutes
-**Current focus:** Phase 3 — Intelligence Layer (next)
+**Current focus:** Phase 4 — Integration Layer (next)
 
 ## Current Phase
 
-**Phase:** 2 — Entity Layer
-**Status:** ✓ Complete (2/2 plans, 111 tests, 157 files)
+**Phase:** 3 — Intelligence Layer
+**Status:** ✓ Complete (1/1 plan, 139 tests, 174 files)
 **Blockers:** None
 
 ## Decisions Log
@@ -108,3 +108,19 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 - 157+ files across 2 plans (47 new/modified files in Phase 2)
 - Entity layer complete: people → teams → projects → tasks → meetings all linked
 - **Resume:** Run `/gsd:discuss-phase 3` for Phase 3 (Intelligence Layer)
+
+### 2026-03-04 — Phase 3 Context + Plan + Execution (Single Session)
+- RAG search pipeline: nomic-embed-text embeddings via Ollama, pgvector similarity search, AI answer generation
+- Summary chunking (4 sections) + transcript chunking (500-word sliding window, 50 overlap)
+- 5th pipeline step: generate_embeddings after resolve_owners
+- Search endpoint with date range and meeting type post-filters
+- Search page: search bar, filter chips, AI answer card, source citation cards
+- 28 new backend tests (16 embeddings, 8 search, 4 pipeline), total 139 passing
+- Committed as `a4c75b1` (17 files, 1,056 insertions)
+
+### 2026-03-04 — Phase 3 Complete ✓
+- All 7 requirements implemented: SEARCH-01–07
+- 139 backend tests + 9 frontend tests passing
+- 174+ files across 1 plan (17 new/modified files in Phase 3)
+- RAG pipeline complete: upload → process → embed → search → AI answer with sources
+- **Resume:** Run `/gsd:discuss-phase 4` for Phase 4 (Integration Layer)
