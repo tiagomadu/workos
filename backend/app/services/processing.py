@@ -29,7 +29,7 @@ async def process_meeting(
     try:
         # Step 1: Detect meeting type
         logger.info("Meeting %s: detecting type", meeting_id)
-        await update_meeting_status(meeting_id, "detecting_type")
+        await update_meeting_status(meeting_id, "processing", processing_step="detecting_type")
 
         type_prompt = render_prompt("detect_meeting_type.j2", transcript=transcript_text)
         type_result = await provider.generate_structured(
@@ -46,7 +46,7 @@ async def process_meeting(
 
         # Step 2: Generate summary
         logger.info("Meeting %s: generating summary", meeting_id)
-        await update_meeting_status(meeting_id, "summarizing")
+        await update_meeting_status(meeting_id, "processing", processing_step="summarizing")
 
         summary_prompt = render_prompt("summarize_meeting.j2", transcript=transcript_text)
         summary_result = await provider.generate_structured(
@@ -61,7 +61,7 @@ async def process_meeting(
 
         # Step 3: Extract action items
         logger.info("Meeting %s: extracting action items", meeting_id)
-        await update_meeting_status(meeting_id, "extracting_actions")
+        await update_meeting_status(meeting_id, "processing", processing_step="extracting_actions")
 
         action_prompt = render_prompt(
             "extract_action_items.j2",
@@ -86,13 +86,13 @@ async def process_meeting(
             }).execute()
 
         # Step 4: Resolve owners
-        await update_meeting_status(meeting_id, "resolving_owners")
+        await update_meeting_status(meeting_id, "processing", processing_step="resolving_owners")
         from app.services.owner_resolution import resolve_owners
         resolution_results = await resolve_owners(meeting_id, user_id)
         logger.info(f"Owner resolution: {len(resolution_results)} items processed")
 
         # Step 5: Generate embeddings for search
-        await update_meeting_status(meeting_id, "generating_embeddings")
+        await update_meeting_status(meeting_id, "processing", processing_step="generating_embeddings")
         from app.services.embeddings import generate_embeddings
         embed_count = await generate_embeddings(meeting_id, user_id)
         logger.info(f"Generated {embed_count} embeddings for meeting {meeting_id}")

@@ -51,15 +51,25 @@ async def create_meeting_record(
 
 
 async def update_meeting_status(
-    meeting_id: str, status: str, error_message: str | None = None
+    meeting_id: str,
+    status: str,
+    processing_step: str | None = None,
+    error_message: str | None = None,
 ) -> None:
-    """Update meeting processing status."""
+    """Update meeting processing status.
+
+    status must be one of: uploaded, processing, completed, failed.
+    processing_step holds the granular sub-step (e.g. detecting_type).
+    """
     supabase = get_supabase_client()
-    data = {"status": status}
+    data: dict = {"status": status}
+    if processing_step is not None:
+        data["processing_step"] = processing_step
     if error_message:
         data["error_message"] = error_message
     if status == "completed":
         data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        data["processing_step"] = None  # clear step on completion
     supabase.table("meetings").update(data).eq("id", meeting_id).execute()
 
 
