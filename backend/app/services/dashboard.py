@@ -96,7 +96,7 @@ async def get_dashboard_data(user_id: str) -> dict:
         supabase.table("projects")
         .select("*")
         .eq("user_id", user_id)
-        .eq("is_archived", False)
+        .neq("status", "archived")
         .execute()
     )
     projects_data = projects_result.data or []
