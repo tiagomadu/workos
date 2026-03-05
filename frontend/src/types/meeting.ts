@@ -17,8 +17,11 @@ export interface Meeting {
     | "completed"
     | "failed";
   title?: string;
+  meeting_date?: string;
   meeting_type?: string;
   meeting_type_confidence?: string;
+  project_id?: string;
+  project_name?: string;
   summary?: MeetingSummary;
   error_message?: string;
   created_at: string;

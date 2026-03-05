@@ -2,10 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import {
   getMeeting,
@@ -13,6 +21,8 @@ import {
   saveActionItems,
   updateSummary,
   reprocessMeeting,
+  getProjects,
+  linkMeetingToProject,
 } from "@/lib/api";
 import type { ActionItem, Meeting, MeetingSummary } from "@/types/meeting";
 import { ProcessingIndicator } from "@/app/meetings/new/processing-indicator";
@@ -70,6 +80,12 @@ export default function MeetingDetailPage() {
     enabled: !!token && !!meetingId && meeting?.status === "completed",
   });
 
+  const { data: projects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => getProjects(token!),
+    enabled: !!token,
+  });
+
   const isProcessing =
     meeting?.status !== "completed" && meeting?.status !== "failed";
 
@@ -106,6 +122,18 @@ export default function MeetingDetailPage() {
       queryClient.invalidateQueries({
         queryKey: ["actionItems", meetingId],
       });
+    } catch {
+      // Error handling could be improved with toast notifications
+    }
+  }
+
+  async function handleProjectChange(newProjectId: string) {
+    if (!token) return;
+    try {
+      const projectId =
+        newProjectId === "__none__" ? null : newProjectId;
+      await linkMeetingToProject(meetingId, projectId, token);
+      queryClient.invalidateQueries({ queryKey: ["meeting", meetingId] });
     } catch {
       // Error handling could be improved with toast notifications
     }
@@ -207,6 +235,39 @@ export default function MeetingDetailPage() {
             Re-run
           </Button>
         </div>
+      </div>
+
+      {/* Linked project */}
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium text-muted-foreground">
+          Project:
+        </span>
+        {meeting.project_id && meeting.project_name ? (
+          <Link
+            href={`/projects/${meeting.project_id}`}
+            className="text-sm text-primary hover:underline"
+          >
+            {meeting.project_name}
+          </Link>
+        ) : (
+          <span className="text-sm text-muted-foreground">None</span>
+        )}
+        <Select
+          value={meeting.project_id || "__none__"}
+          onValueChange={handleProjectChange}
+        >
+          <SelectTrigger className="h-8 w-[180px] text-xs">
+            <SelectValue placeholder="Change project" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">No project</SelectItem>
+            {projects?.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Summary section */}

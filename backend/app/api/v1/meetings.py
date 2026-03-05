@@ -325,3 +325,33 @@ async def update_summary(
     }).eq("id", meeting_id).execute()
 
     return {"status": "ok"}
+
+
+class LinkProjectRequest(BaseModel):
+    """Request body for linking/unlinking a meeting to a project."""
+
+    project_id: Optional[str] = None
+
+
+@router.put("/{meeting_id}/project")
+async def link_meeting_to_project(
+    meeting_id: str,
+    body: LinkProjectRequest,
+    user: AuthenticatedUser = Depends(get_current_user),
+) -> dict:
+    """Link or unlink a meeting to/from a project."""
+    supabase = get_supabase_client()
+    project_id = body.project_id
+    result = (
+        supabase.table("meetings")
+        .update({"project_id": project_id})
+        .eq("id", meeting_id)
+        .eq("user_id", user.id)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meeting not found",
+        )
+    return {"project_id": project_id}

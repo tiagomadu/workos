@@ -13,6 +13,13 @@ import type {
   TeamCreate,
   TeamUpdate,
 } from "@/types/people";
+import type { Task, TaskCreate, TaskUpdate, TaskFilters } from "@/types/task";
+import type {
+  Project,
+  ProjectDetail,
+  ProjectCreate,
+  ProjectUpdate,
+} from "@/types/project";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -360,5 +367,194 @@ export async function deleteTeam(
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to delete team");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tasks
+// ---------------------------------------------------------------------------
+
+export async function getTasks(
+  token: string,
+  filters?: TaskFilters
+): Promise<Task[]> {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.owner_id) params.set("owner_id", filters.owner_id);
+  if (filters?.project_id) params.set("project_id", filters.project_id);
+  if (filters?.sort_by) params.set("sort_by", filters.sort_by);
+  if (filters?.include_archived) params.set("include_archived", "true");
+  const query = params.toString() ? `?${params.toString()}` : "";
+  const res = await fetch(`${API_URL}/api/v1/tasks${query}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch tasks");
+  }
+  return res.json();
+}
+
+export async function createTask(
+  data: TaskCreate,
+  token: string
+): Promise<Task> {
+  const res = await fetch(`${API_URL}/api/v1/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to create task");
+  }
+  return res.json();
+}
+
+export async function updateTask(
+  taskId: string,
+  data: TaskUpdate,
+  token: string
+): Promise<Task> {
+  const res = await fetch(`${API_URL}/api/v1/tasks/${taskId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to update task");
+  }
+  return res.json();
+}
+
+export async function archiveTask(
+  taskId: string,
+  token: string
+): Promise<Task> {
+  const res = await fetch(`${API_URL}/api/v1/tasks/${taskId}/archive`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to archive task");
+  }
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Projects
+// ---------------------------------------------------------------------------
+
+export async function getProjects(
+  token: string,
+  includeArchived?: boolean
+): Promise<Project[]> {
+  const params = includeArchived ? "?include_archived=true" : "";
+  const res = await fetch(`${API_URL}/api/v1/projects${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch projects");
+  }
+  return res.json();
+}
+
+export async function getProject(
+  projectId: string,
+  token: string
+): Promise<ProjectDetail> {
+  const res = await fetch(`${API_URL}/api/v1/projects/${projectId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch project");
+  }
+  return res.json();
+}
+
+export async function createProject(
+  data: ProjectCreate,
+  token: string
+): Promise<Project> {
+  const res = await fetch(`${API_URL}/api/v1/projects`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to create project");
+  }
+  return res.json();
+}
+
+export async function updateProject(
+  projectId: string,
+  data: ProjectUpdate,
+  token: string
+): Promise<Project> {
+  const res = await fetch(`${API_URL}/api/v1/projects/${projectId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to update project");
+  }
+  return res.json();
+}
+
+export async function archiveProject(
+  projectId: string,
+  token: string
+): Promise<Project> {
+  const res = await fetch(`${API_URL}/api/v1/projects/${projectId}/archive`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to archive project");
+  }
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Meeting-Project Linking
+// ---------------------------------------------------------------------------
+
+export async function linkMeetingToProject(
+  meetingId: string,
+  projectId: string | null,
+  token: string
+): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/meetings/${meetingId}/project`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ project_id: projectId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to link meeting to project");
   }
 }

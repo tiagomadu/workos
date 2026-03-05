@@ -1,6 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getProjects } from "@/lib/api";
 
 export interface MeetingMetadata {
   title: string;
@@ -11,9 +20,16 @@ export interface MeetingMetadata {
 interface MetadataFormProps {
   metadata: MeetingMetadata;
   onChange: (metadata: MeetingMetadata) => void;
+  token?: string | null;
 }
 
-export function MetadataForm({ metadata, onChange }: MetadataFormProps) {
+export function MetadataForm({ metadata, onChange, token }: MetadataFormProps) {
+  const { data: projects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => getProjects(token!),
+    enabled: !!token,
+  });
+
   const update = (field: keyof MeetingMetadata, value: string) => {
     onChange({ ...metadata, ...{ [field]: value } });
   };
@@ -46,12 +62,24 @@ export function MetadataForm({ metadata, onChange }: MetadataFormProps) {
         <label htmlFor="project" className="text-sm font-medium">
           Project
         </label>
-        <Input
-          id="project"
-          value={metadata.project_id}
-          onChange={(e) => update("project_id", e.target.value)}
-          placeholder="Project name or ID"
-        />
+        <Select
+          value={metadata.project_id || "__none__"}
+          onValueChange={(val) =>
+            update("project_id", val === "__none__" ? "" : val)
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a project" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">No project</SelectItem>
+            {projects?.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

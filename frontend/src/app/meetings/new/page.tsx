@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
@@ -50,6 +50,15 @@ export default function NewMeetingPage() {
     meeting_date: todayString(),
     project_id: "",
   });
+
+  // Synchronous token for child components that need it for React Query
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setToken(data.session?.access_token ?? null);
+    });
+  }, [supabase]);
 
   // --- Helpers ---
 
@@ -212,7 +221,7 @@ export default function NewMeetingPage() {
                 <CardDescription>Optional metadata</CardDescription>
               </CardHeader>
               <CardContent>
-                <MetadataForm metadata={metadata} onChange={setMetadata} />
+                <MetadataForm metadata={metadata} onChange={setMetadata} token={token} />
               </CardContent>
             </Card>
           </div>
