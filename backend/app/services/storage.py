@@ -40,11 +40,10 @@ async def create_meeting_record(
     data = {
         "user_id": user_id,
         "transcript_path": transcript_path,
-        "raw_transcript": raw_transcript,
-        "status": "pending",
+        "transcript_text": raw_transcript,
+        "status": "uploaded",
+        "title": title or "Untitled Meeting",
     }
-    if title:
-        data["title"] = title
     if meeting_date:
         data["meeting_date"] = meeting_date
     result = supabase.table("meetings").insert(data).execute()
@@ -60,7 +59,7 @@ async def update_meeting_status(
     if error_message:
         data["error_message"] = error_message
     if status == "completed":
-        data["processed_at"] = datetime.now(timezone.utc).isoformat()
+        data["updated_at"] = datetime.now(timezone.utc).isoformat()
     supabase.table("meetings").update(data).eq("id", meeting_id).execute()
 
 
